@@ -8,6 +8,8 @@
 
 import Foundation
 
+let length = 5
+
 func position(_ letter: String) -> Int {
     switch letter {
     case "A": return 0
@@ -28,16 +30,31 @@ func letter(from index: Int) -> String {
     }
 }
 
-func minIndex(from arr: [Int]) -> Int {
-    var min = 0
+func missingLetter(combination: [String]) -> String {
+    let allLetters = ["A", "B", "C", "D", "E"]
+    for i in allLetters.indices {
+        let letter = allLetters[i]
+        if !combination.contains(letter) {
+            return letter
+        }
+    }
+    return ""
+}
+
+func minIndex(from arr: [Int], without letters: [String]) -> Int {
+    let notIncluding = letters.map { position($0) }
+    var min = Int.max
     var index = 0
     arr.enumerated().forEach {
-        if $0.element < min {
+        if $0.element < min && !notIncluding.contains($0.offset) {
             min = $0.element
             index = $0.offset
         }
     }
     return index
+}
+func factorial(_ n: Int) -> Int {
+  return (1...n).reduce(1, *)
 }
 
 let both = readLine()!.split(separator: " ").map(String.init)
@@ -47,12 +64,12 @@ var maxRetries = Int(both[1])!
 func solve(i: Int) {
     var combination = [String]()
     var indexes = [Int]()
-    for i in stride(from: 1, to: 595, by: 5) {
+    for i in stride(from: 1, to: factorial(length) * length - length, by: length) {
         indexes.append(i)
     }
     repeat {
-        var letters = [Int](repeating: 0, count: 5)
-        var indexesByLetters = [[Int]](repeating: [], count: 5)
+        var letters = [Int](repeating: 0, count: length)
+        var indexesByLetters = [[Int]](repeating: [], count: length)
         for i in indexes {
             print(i)
             fflush(stdout)
@@ -60,16 +77,21 @@ func solve(i: Int) {
             letters[position(letter)] += 1
             indexesByLetters[position(letter)].append(i)
         }
-        let idx = minIndex(from: letters)
+        let idx = minIndex(from: letters, without: combination)
         combination.append(letter(from: idx))
         indexes = indexesByLetters[idx].map { $0 + 1 }
-    } while combination.count < 5
-    print("Case #\(i): \(combination)")
+        if indexes.count == 0 {
+            combination.append(missingLetter(combination: combination))
+        }
+    } while combination.count < length
+    
+    print(combination.joined())
+    fflush(stdout)
+    if readLine()! != "Y" { fatalError() }
 }
 
 for i in 1...numberOfCases {
     solve(i: i)
 }
-
 
 
