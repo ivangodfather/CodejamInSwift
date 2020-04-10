@@ -86,14 +86,6 @@ func makeMove(matrix: Matrix, element: Character, in position: (x: Int, y: Int))
     return output
 }
 
-func printOuput(isFirstPlayer: Bool, winningComb: Int, caseNumber: Int) {
-    if (isFirstPlayer && winningComb == 0) || !isFirstPlayer {
-        print("Case #\(caseNumber): 0")
-    } else {
-        print("Case #\(caseNumber): \(winningComb)")
-    }
-}
-
 func play(matrix: Matrix) -> [Matrix] {
     var output = [Matrix]()
     let coordinates = availableCoordinates(from: matrix)
@@ -102,12 +94,12 @@ func play(matrix: Matrix) -> [Matrix] {
     }
     
     for coordinate in coordinates {
-        let validElementsForCoordiante = validElements(for: coordinate, with: matrix)
-        if validElementsForCoordiante.count == 0 {
+        let validElementsForCoordinate = validElements(for: coordinate, with: matrix)
+        if validElementsForCoordinate.count == 0 {
             return []
         }
         
-        for element in validElementsForCoordiante { // TODO
+        for element in validElementsForCoordinate { // TODO
             output.append(makeMove(matrix: matrix, element: element, in: coordinate))
         }
     }
@@ -119,25 +111,27 @@ enum Player {
     case terry
 }
 
-func playGameReturnLooser(currentPlayer: Player, matrix: Matrix) -> Player {
+func winnerGamesByBecca(currentPlayer: Player, matrix: Matrix, wins: Int) -> Int {
+    var winningCombinations = wins
+
     let possibleScenarios = play(matrix: matrix)
     if possibleScenarios.isEmpty {
-        return currentPlayer
+        return currentPlayer == .terry ? 1 : 0
     }
     let player: Player = currentPlayer == .becca ? .terry : .becca
     for scenario in possibleScenarios {
-        if playGameReturnLooser(currentPlayer: player, matrix: scenario) == .becca {
-            return .becca
+        if winnerGamesByBecca(currentPlayer: player, matrix: scenario, wins: 0) > 0 {
+            winningCombinations += 1
         }
     }
-    return .terry
+    return winningCombinations
 }
 
 func solve(_ caseNumber: Int, matrix: Matrix) {
     
-    let looserPlayer = playGameReturnLooser(currentPlayer: .becca, matrix: matrix)
-    if looserPlayer == .terry {
-        print("Case #\(caseNumber): 1")
+    let winnsByBeca = winnerGamesByBecca(currentPlayer: .becca, matrix: matrix, wins: 0)
+    if winnsByBeca > 0 {
+        print("Case #\(caseNumber): \(winnsByBeca)")
     } else {
         print("Case #\(caseNumber): 0")
     }
