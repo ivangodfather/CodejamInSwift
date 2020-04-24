@@ -12,6 +12,10 @@ func solve(caseNumber: Int) {
     let tuple = readLine()!.split(separator: " ").map { Int($0)! }
     let stalls = tuple[0]
     var persons = tuple[1]
+    if persons > stalls * 2 / 3 {
+        print("Case #\(caseNumber): \(0) \(0)")
+        return
+    }
     var heap = Heap<ClosedRange<Int>>(sort: { left, right -> Bool in
         if right.lowerBound.distance(to: right.upperBound) > left.lowerBound.distance(to: left.upperBound)  {
             return false
